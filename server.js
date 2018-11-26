@@ -19,6 +19,7 @@ app.post('/', (req, res) => {
   }); 
 
   let dependencyMap = repoHandler.getDependencyMap();
+  let targetFiles = repoHandler.getJsFilePaths(constants.REPO_DIR)
 
   res.render('index');
 })

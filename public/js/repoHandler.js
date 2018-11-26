@@ -19,7 +19,6 @@ function getDependencyMap() {
     Object.keys(dependencies).forEach(key => {
         dMap[key] = new Map();
     });
-
     return dMap;
 }
 
@@ -27,19 +26,19 @@ function getJsFilePaths(dirPath) {
     let jsFilePaths = [];
     let allFiles = fs.readdirSync(dirPath);
 
-    allFiles.forEach(file => {
-        let filePath = constants.REPO_DIR + "/" + file;
+    allFiles.forEach(function (file) {
+        let filePath = dirPath+ "/" + file;
         let isDir = fs.lstatSync(filePath).isDirectory();
         let noGit = !file.includes(".git");
 
         if (isDir && noGit) {
             jsFilePaths = jsFilePaths.concat(getJsFilePaths(filePath));
-        } else if (path.extname(file).toLowerCase === constants.TARGET_FILE_EXTENSION) {
+        } else if (path.extname(file).toLowerCase() === constants.TARGET_FILE_EXTENSION) {
             jsFilePaths.push(filePath);
         }
     });
 
-    return jsFiles;
+    return jsFilePaths;
 }
 
 module.exports = {
