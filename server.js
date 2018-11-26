@@ -22,6 +22,7 @@ app.post('/', (req, res) => {
   let targetFiles = repoHandler.getJsFilePaths(constants.REPO_DIR)
   // repoHandler.findDependencies(targetFiles, dependencyMap);
 
+  // THIS IS ONLY TEST DATA, DELETE AFTERWARDS
   let testData = {
     packageNames: ['Main', 'A', 'B', 'C', 'D', 'E', 'DFDFD'],
     matrix: [[0, 1, 1, 1, 1, 1, 0], // Main depends on A and B
@@ -32,9 +33,6 @@ app.post('/', (req, res) => {
     [1, 0, 1, 0, 1, 0, 1],
     [0, 1, 0, 1, 0, 1, 0]] // B doesn't depend on A or Main
   };
-
-  let test = JSON.stringify(testData);
-  console.log(test);
 
   res.render('index', { dependencyData: JSON.stringify(testData)});
 })
