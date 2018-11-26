@@ -3,6 +3,8 @@ const fs = require('fs');
 const constants = require('./constants');
 const path = require('path');
 
+let dMap = new Map();
+
 async function retrieveRepo(url) {
     let cloneRepo = await git.Clone(url, constants.REPO_DIR);
         
@@ -14,7 +16,6 @@ async function retrieveRepo(url) {
 function getDependencyMap() {
     let packageJson = JSON.parse(fs.readFileSync(constants.PACKAGE_JSON_DIR));
     let dependencies = packageJson[constants.PACKAGE_JSON_DEPENDENCIES];
-    let dMap = new Map();
 
     Object.keys(dependencies).forEach(key => {
         dMap[key] = new Map();
@@ -44,9 +45,40 @@ function getJsFilePaths(dirPath) {
 function findDependencies(jsFiles, dependenciesMap){
 
     jsFiles.forEach(function (file) {
-        let content = fs.readFileSync(file,"utf-8");
+        let rawContent = fs.readFileSync(file,"utf-8");
+        let content = rawContent.split("\n");
+        let fileName = file.split("/").pop();
+        classModules(content,fileName);
+
     });
     return content;
+}
+
+function classModules(content, file)
+{
+    content = content.filter(function (value) {
+        return (value !== "" && value != null);
+    })
+    content.forEach(function (line) {
+        matchModules(line,file)
+    })
+}
+
+function matchModules(line,file)
+{
+    Object.keys(dMap).forEach(key => {
+       if(line.includes(key.toString()))
+    {
+        let count = dMap[key][file];
+        if(count == null)
+        {
+            dMap[key][file] = 1;
+        }
+        else{
+            dMap[key][file] = count++;
+        }
+    }
+    });
 }
 
 module.exports = {
