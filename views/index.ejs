@@ -55,6 +55,7 @@
       <script>
         var data = JSON.parse('<%- dependencyData %>');
         var chart = d3.chart.dependencyWheel();
+        d3.select('#chart svg').remove();
         d3.select('#chart').datum(data).call(chart);
       </script>
     <% } %>

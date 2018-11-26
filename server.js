@@ -17,19 +17,19 @@ app.post('/', (req, res) => {
   repoHandler.retrieveRepo(req.body.url)
   .then(() => {
     let dependencyMap = repoHandler.getDependencyMap();
-    let targetFiles = repoHandler.getJsFilePaths(constants.REPO_DIR)
-    // repoHandler.findDependencies(targetFiles, dependencyMap);
+    let jsFiles = repoHandler.getJsFilePaths(constants.REPO_DIR)
+    let data = dataBuilder.getDataMatrix(dependencyMap, jsFiles);
   
     // THIS IS ONLY TEST DATA, DELETE AFTERWARDS
     let testData = {
-      packageNames: ['Main', 'A', 'B', 'C', 'D', 'E', 'DFDFD'],
-      matrix: [[0, 1, 1, 1, 1, 1, 0], 
-      [0, 0, 1, 1, 0, 1, 0], 
-      [0, 0, 0, 0, 0, 0, 0],
-      [1, 1, 1, 0, 0, 0, 0],
-      [0, 0, 0, 1, 0, 1, 0],
-      [1, 0, 1, 0, 1, 0, 1],
-      [0, 1, 0, 1, 0, 1, 0]] 
+      packageNames: ['F1', 'F2', 'F3', 'F4', 'N1', 'N2', 'N3'],
+      matrix: [[0, 0, 0, 0, 7, 1, 1], 
+      [0, 0, 0, 0, 0, 1, 0], 
+      [0, 0, 0, 0, 1, 0, 0],
+      [0, 0, 0, 0, 1, 0, 1],
+      [1, 0, 1, 1, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0, 0],
+      [1, 0, 0, 1, 0, 0, 0]] 
     };
   
     res.render('index', { dependencyData: JSON.stringify(testData)});
