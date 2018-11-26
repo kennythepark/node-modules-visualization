@@ -15,8 +15,8 @@ app.get('/', (req, res) => {
 app.post('/', (req, res) => {
   repoHandler.retrieveRepo(req.body.url)
   .catch(err => {
-    console.log(err);
-    // TODO: handle error?
+    global.console.log(err);
+    next(err);
   }); 
 
   res.render('index');
