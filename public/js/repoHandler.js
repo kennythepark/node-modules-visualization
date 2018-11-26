@@ -41,10 +41,19 @@ function getJsFilePaths(dirPath) {
     return jsFilePaths;
 }
 
+function findDependencies(jsFiles, dependenciesMap){
+
+    jsFiles.forEach(function (file) {
+        let content = fs.readFileSync(file,"utf-8");
+    });
+    return content;
+}
+
 module.exports = {
     retrieveRepo: retrieveRepo,
     getDependencyMap: getDependencyMap,
     // getJsFiles sounds more like a helper for analysis, put here for test
     // but get rid of it for export later
-    getJsFilePaths: getJsFilePaths
+    getJsFilePaths: getJsFilePaths,
+    findDependencies:findDependencies
 };
