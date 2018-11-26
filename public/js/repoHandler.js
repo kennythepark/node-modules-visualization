@@ -4,6 +4,7 @@ const constants = require('./constants');
 const path = require('path');
 
 let dMap = new Map();
+let variableMap = new Map();
 
 async function retrieveRepo(url) {
     let cloneRepo = await git.Clone(url, constants.REPO_DIR);
@@ -48,10 +49,13 @@ function findDependencies(jsFiles, dependenciesMap){
         let rawContent = fs.readFileSync(file,"utf-8");
         let content = rawContent.split("\n");
         let fileName = file.split("/").pop();
-        classModules(content,fileName);
 
+        Object.keys(dMap).forEach(key => {
+            variableMap[key] = [];
     });
-    return content;
+
+        classModules(content,fileName);
+    });
 }
 
 function classModules(content, file)
@@ -67,18 +71,31 @@ function classModules(content, file)
 function matchModules(line,file)
 {
     Object.keys(dMap).forEach(key => {
-       if(line.includes(key.toString()))
+       if(line.includes(key.toString()) || checkVariables(line,key))
     {
+        if(line.includes("require"))
+        {
+            variableMap[key].push(line.split(" ")[1]);
+        }
         let count = dMap[key][file];
         if(count == null)
         {
             dMap[key][file] = 1;
         }
         else{
-            dMap[key][file] = count++;
+            dMap[key][file] = count + 1;
         }
     }
     });
+}
+
+function checkVariables(line,key) {
+
+    let found = false;
+    variableMap[key].forEach( function (variable) {
+        if(line.includes(variable)) found = true;
+    });
+    return found;
 }
 
 module.exports = {
