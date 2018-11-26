@@ -14,27 +14,28 @@ app.get('/', (req, res) => {
 
 app.post('/', (req, res) => {
   repoHandler.retrieveRepo(req.body.url)
+  .then(() => {
+    let dependencyMap = repoHandler.getDependencyMap();
+    let targetFiles = repoHandler.getJsFilePaths(constants.REPO_DIR)
+    // repoHandler.findDependencies(targetFiles, dependencyMap);
+  
+    // THIS IS ONLY TEST DATA, DELETE AFTERWARDS
+    let testData = {
+      packageNames: ['Main', 'A', 'B', 'C', 'D', 'E', 'DFDFD'],
+      matrix: [[0, 1, 1, 1, 1, 1, 0], 
+      [0, 0, 1, 1, 0, 1, 0], 
+      [0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 1, 0, 0, 0, 0],
+      [0, 0, 0, 1, 0, 1, 0],
+      [1, 0, 1, 0, 1, 0, 1],
+      [0, 1, 0, 1, 0, 1, 0]] 
+    };
+  
+    res.render('index', { dependencyData: JSON.stringify(testData)});
+  })
   .catch(err => {
     global.console.log(err);
   }); 
-
-  let dependencyMap = repoHandler.getDependencyMap();
-  let targetFiles = repoHandler.getJsFilePaths(constants.REPO_DIR)
-  // repoHandler.findDependencies(targetFiles, dependencyMap);
-
-  // THIS IS ONLY TEST DATA, DELETE AFTERWARDS
-  let testData = {
-    packageNames: ['Main', 'A', 'B', 'C', 'D', 'E', 'DFDFD'],
-    matrix: [[0, 1, 1, 1, 1, 1, 0], // Main depends on A and B
-    [0, 0, 1, 1, 0, 1, 0], // A depends on B
-    [0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 0, 0, 0, 0],
-    [0, 0, 0, 1, 0, 1, 0],
-    [1, 0, 1, 0, 1, 0, 1],
-    [0, 1, 0, 1, 0, 1, 0]] // B doesn't depend on A or Main
-  };
-
-  res.render('index', { dependencyData: JSON.stringify(testData)});
 })
 
 app.listen(3000, () => {
