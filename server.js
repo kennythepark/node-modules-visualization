@@ -1,6 +1,7 @@
 const express = require('express')
 const bodyParser = require('body-parser');
 const repoHandler = require('./public/js/repoHandler');
+const dataBuilder = require('./public/js/dataBuilder');
 const constants = require('./public/js/constants');
 const app = express()
 
@@ -32,9 +33,13 @@ app.post('/', (req, res) => {
     };
   
     res.render('index', { dependencyData: JSON.stringify(testData)});
+
+    // Delete the visualized repo afterwards.
+    repoHandler.deleteDirectory(constants.REPO_DIR);
   })
   .catch(err => {
     global.console.log(err);
+    res.render('index', { dependencyData: null});
   }); 
 })
 

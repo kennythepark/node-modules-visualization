@@ -3,9 +3,6 @@ const fs = require('fs');
 const constants = require('./constants');
 const path = require('path');
 
-let dMap = new Map();
-let variableMap = new Map();
-
 async function retrieveRepo(url) {
     let cloneRepo = await git.Clone(url, constants.REPO_DIR);
         
@@ -15,12 +12,14 @@ async function retrieveRepo(url) {
 }
 
 function getDependencyMap() {
+    let dMap = new Map();
     let packageJson = JSON.parse(fs.readFileSync(constants.PACKAGE_JSON_DIR));
     let dependencies = packageJson[constants.PACKAGE_JSON_DEPENDENCIES];
 
     Object.keys(dependencies).forEach(key => {
         dMap[key] = new Map();
     });
+
     return dMap;
 }
 
@@ -43,66 +42,25 @@ function getJsFilePaths(dirPath) {
     return jsFilePaths;
 }
 
-function findDependencies(jsFiles, dependenciesMap){
+function deleteDirectory(dirPath) {
+    if (fs.existsSync(dirPath)) {
+        fs.readdirSync(dirPath).forEach((file, index) => {
+            let curPath = dirPath + "/" + file;
+            
+            if (fs.lstatSync(curPath).isDirectory()) {
+                deleteDirectory(curPath);
+            } else {
+                fs.unlinkSync(curPath);
+            }
+        });
 
-    jsFiles.forEach(function (file) {
-        let rawContent = fs.readFileSync(file,"utf-8");
-        let content = rawContent.split("\n");
-        let fileName = file.split("/").pop();
-
-        Object.keys(dMap).forEach(key => {
-            variableMap[key] = [];
-    });
-
-        classModules(content,fileName);
-    });
-}
-
-function classModules(content, file)
-{
-    content = content.filter(function (value) {
-        return (value !== "" && value != null);
-    })
-    content.forEach(function (line) {
-        matchModules(line,file)
-    })
-}
-
-function matchModules(line,file)
-{
-    Object.keys(dMap).forEach(key => {
-       if(line.includes(key.toString()) || checkVariables(line,key))
-    {
-        if(line.includes("require"))
-        {
-            variableMap[key].push(line.split(" ")[1]);
-        }
-        let count = dMap[key][file];
-        if(count == null)
-        {
-            dMap[key][file] = 1;
-        }
-        else{
-            dMap[key][file] = count + 1;
-        }
+        fs.rmdirSync(dirPath);
     }
-    });
-}
-
-function checkVariables(line,key) {
-
-    let found = false;
-    variableMap[key].forEach( function (variable) {
-        if(line.includes(variable)) found = true;
-    });
-    return found;
 }
 
 module.exports = {
     retrieveRepo: retrieveRepo,
     getDependencyMap: getDependencyMap,
-    // getJsFiles sounds more like a helper for analysis, put here for test
-    // but get rid of it for export later
     getJsFilePaths: getJsFilePaths,
-    findDependencies:findDependencies
+    deleteDirectory: deleteDirectory
 };
