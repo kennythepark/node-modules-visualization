@@ -16,8 +16,9 @@ app.post('/', (req, res) => {
   repoHandler.retrieveRepo(req.body.url)
   .catch(err => {
     global.console.log(err);
-    next(err);
   }); 
+
+  let dependencyMap = repoHandler.getDependencyMap();
 
   res.render('index');
 })
