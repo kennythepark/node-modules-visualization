@@ -27,8 +27,8 @@ function getJsFilePaths(dirPath) {
     let jsFilePaths = [];
     let allFiles = fs.readdirSync(dirPath);
 
-    allFiles.forEach(function (file) {
-        let filePath = dirPath+ "/" + file;
+    allFiles.forEach((file) => {
+        let filePath = dirPath + "/" + file;
         let isDir = fs.lstatSync(filePath).isDirectory();
         let noGit = !file.includes(".git");
 

@@ -1,24 +1,33 @@
 const fs = require('fs');
+const constants = require('./constants');
 
-let modulesMap = new Map();
 function getDataMatrix(dependencies, jsFiles) {
-    let dependenciesSet = new Set(Object.keys(dependencies));
+    let dependenciesArr = Object.keys(dependencies);
     let validJsFiles = [];
     let matrix = [];
+    let modulesMap = new Map();
 
     jsFiles.forEach((file) => {
         let rawContent = fs.readFileSync(file,"utf-8");
         let content = rawContent.split("\n");
         let moduleToVariableMap = getModuleToVariableMap(content);
-        let freqMap = getFrequencyOfLocalVariable(content, moduleToVariableMap, dependenciesSet);
+        let freqMap = getFrequencyOfLocalVariable(content, moduleToVariableMap, new Set(dependenciesArr));
 
         if (Object.keys(freqMap).length > 0) {
-            console.log(file);
             validJsFiles.push(file);
-            matrix.push(createFileDataArray(freqMap, dependencies));
-            addModulesMap(freqMap, file);
+            matrix.push(createFileDataArray(freqMap, dependenciesArr));
+            addModulesMap(modulesMap, freqMap, file);
         }
     });
+
+    matrix = fillFileDataArrayBuffer(matrix, validJsFiles.length);
+    matrix = matrix.concat(createModulesMatrix(dependenciesArr, validJsFiles, modulesMap));
+    validJsFiles = removeRepoPrefix(validJsFiles);
+
+    return {
+        packageNames: validJsFiles.concat(dependenciesArr),
+        matrix: matrix        
+    }
 }
 
 // Find dependent node modules in file content.
@@ -83,78 +92,31 @@ function getFrequencyOfLocalVariable(content, mtvMap, dependenciesSet) {
     return freqMap;
 }
 
-function createFileDataArray(freqMap, dependencies) {
-    // let dArr = Array(numOfFiles);
-    // dArr.fill(0);
-
+function createFileDataArray(freqMap, dependenciesArr) {
     let dArr = [];
 
-    Object.keys(dependencies).forEach((d) => {
+    dependenciesArr.forEach((d) => {
         let freq = freqMap[d] || 0;
         dArr.push(freq);
     });
 
-    console.log(dArr);
-
-    return [];
+    return dArr;
 }
 
-function findDependencies(jsFiles, dependenciesMap){
-    jsFiles.forEach(function (file) {
-        let rawContent = fs.readFileSync(file,"utf-8");
-        let content = rawContent.split("\n");
-        let fileName = file.split("/").pop();
+function fillFileDataArrayBuffer(initMatrix, buffer) {
+    let bufferedMatrix = [];
 
-        Object.keys(dMap).forEach(key => {
-            variableMap[key] = [];
+    initMatrix.forEach((arr) => {
+        let bufferArr = Array(buffer);
+        bufferArr.fill(0);
+
+        bufferedMatrix.push(bufferArr.concat(arr));
     });
 
-        classModules(content,fileName);
-    });
+    return bufferedMatrix;
 }
 
-function classModules(content, file)
-{
-    content = content.filter(function (value) {
-        return (value !== "" && value != null);
-    })
-    content.forEach(function (line) {
-        matchModules(line,file)
-    })
-}
-
-function matchModules(line,file)
-{
-    Object.keys(dMap).forEach(key => {
-       if(line.includes(key.toString()) || checkVariables(line,key))
-    {
-        if(line.includes("require"))
-        {
-            variableMap[key].push(line.split(" ")[1]);
-        }
-        let count = dMap[key][file];
-        if(count == null)
-        {
-            dMap[key][file] = 1;
-        }
-        else{
-            dMap[key][file] = count + 1;
-        }
-    }
-    });
-}
-
-function checkVariables(line,key) {
-
-    let found = false;
-    variableMap[key].forEach( function (variable) {
-        if(line.includes(variable)) found = true;
-    });
-    return found;
-}
-
-function addModulesMap(freqMap, file)
-{
+function addModulesMap(modulesMap, freqMap, file) {
     Object.keys(freqMap).forEach(function (key) {
 
         let files = modulesMap[key];
@@ -167,6 +129,39 @@ function addModulesMap(freqMap, file)
             modulesMap[key].push(file);
         }
     });
+}
+
+function createModulesMatrix(dependenciesArr, validFiles, modulesMap) {
+    let modulesMatrix = [];
+
+    dependenciesArr.forEach((d) => {
+        let moduleDataArr = [];
+        let modulesRefSet = new Set(modulesMap[d]);
+
+        if (modulesRefSet) {
+            validFiles.forEach((file) => {
+                let existIndicator = (modulesRefSet.has(file)) ? 1 : 0;
+                moduleDataArr.push(existIndicator);
+            });
+
+            let bufferArr = Array(dependenciesArr.length);
+            bufferArr.fill(0);
+
+            modulesMatrix.push(moduleDataArr.concat(bufferArr));
+        }
+    });
+
+    return modulesMatrix;
+}
+
+function removeRepoPrefix(files) {
+    let processedArr = [];
+
+    files.forEach((file) => {
+        processedArr.push(file.replace(constants.REPO_DIR + "/", ""));
+    });
+
+    return processedArr;
 }
 
 module.exports = {
