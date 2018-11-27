@@ -1,5 +1,6 @@
 const fs = require('fs');
 
+let modulesMap = new Map();
 function getDataMatrix(dependencies, jsFiles) {
     let dependenciesSet = new Set(Object.keys(dependencies));
     let validJsFiles = [];
@@ -15,10 +16,10 @@ function getDataMatrix(dependencies, jsFiles) {
             console.log(file);
             validJsFiles.push(file);
             matrix.push(createFileDataArray(freqMap, dependencies));
+            addModulesMap(freqMap, file);
         }
-        
     });
-} 
+}
 
 // Find dependent node modules in file content.
 // Returns a map of the matching node modules.
@@ -150,6 +151,22 @@ function checkVariables(line,key) {
         if(line.includes(variable)) found = true;
     });
     return found;
+}
+
+function addModulesMap(freqMap, file)
+{
+    Object.keys(freqMap).forEach(function (key) {
+
+        let files = modulesMap[key];
+        if(files == null)
+        {
+            modulesMap[key] = [];
+            modulesMap[key].push(file);
+        }
+        else{
+            modulesMap[key].push(file);
+        }
+    });
 }
 
 module.exports = {
