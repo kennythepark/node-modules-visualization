@@ -1,20 +1,21 @@
 const fs = require('fs');
 
+let modulesMap = new Map();
 function getDataMatrix(dependencies, jsFiles) {
     let matrix = [];
 
     console.log(jsFiles);
 
-    jsFiles.forEach((file) => {
-        let rawContent = fs.readFileSync(file,"utf-8");
-        let content = rawContent.split("\n");
-        let moduleToVariableMap = getModuleToVariableMap(content);
-        let freqMap = getFrequencyOfLocalVariable(content, moduleToVariableMap);
-        
-        matrix.push(createFileDataArray(freqMap, dependencies, jsFiles.length));
+    jsFiles.forEach((file) = > {
+        let rawContent = fs.readFileSync(file, "utf-8");
+    let content = rawContent.split("\n");
+    let moduleToVariableMap = getModuleToVariableMap(content);
+    let freqMap = getFrequencyOfLocalVariable(content, moduleToVariableMap);
 
+    //matrix.push(createFileDataArray(freqMap, dependencies, jsFiles.length));
+    addModulesMap(freqMap, file);
     });
-} 
+}
 
 // Find dependent node modules in file content.
 // Returns a map of the matching node modules.
@@ -141,6 +142,22 @@ function checkVariables(line,key) {
         if(line.includes(variable)) found = true;
     });
     return found;
+}
+
+function addModulesMap(freqMap, file)
+{
+    Object.keys(freqMap).forEach(function (key) {
+
+        let files = modulesMap[key];
+        if(files == null)
+        {
+            modulesMap[key] = [];
+            modulesMap[key].push(file);
+        }
+        else{
+            modulesMap[key].push(file);
+        }
+    });
 }
 
 module.exports = {
