@@ -14,6 +14,9 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
+  // Delete if directory is existing.
+  repoHandler.deleteDirectory(constants.REPO_DIR);
+
   repoHandler.retrieveRepo(req.body.url)
   .then(() => {
     let dependencyMap = repoHandler.getDependencyMap();
@@ -33,9 +36,6 @@ app.post('/', (req, res) => {
     };
   
     res.render('index', { dependencyData: JSON.stringify(testData)});
-
-    // Delete the visualized repo afterwards.
-    repoHandler.deleteDirectory(constants.REPO_DIR);
   })
   .catch(err => {
     global.console.log(err);

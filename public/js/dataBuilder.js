@@ -1,8 +1,73 @@
-let variableMap = new Map();
+const fs = require('fs');
 
-function getDataMatrix(dMap, jsFiles) {
+// let variableMap = new Map();
 
+function getDataMatrix(dependencies, jsFiles) {
+    let rawContent = fs.readFileSync('repoToVisualize/public/js/repoHandler.js',"utf-8");
+    let content = rawContent.split("\n");
+    let moduleToVariableMap = getModuleToVariableMap(content);
+    let testMap = getFrequencyOfLocalVariable(content, moduleToVariableMap);
+
+    console.log(testMap);
 } 
+
+// Find dependent node modules in file content.
+// Returns a map of the matching node modules.
+function getModuleToVariableMap(content) {
+    let moduleToVariableMap = new Map();
+
+    content.forEach((line) => {
+        // Hacky, but prevents from getting the word
+        // require in strings.
+        if (line.includes("require(")) {
+            let lineSplit = line.split("=");
+
+            let varName = extractVariableName(lineSplit[0]);
+            let requiredMod = extractModuleName(lineSplit[1]);
+
+            moduleToVariableMap[requiredMod] = varName;
+        }
+    });
+
+    return moduleToVariableMap;
+}
+
+function extractVariableName(str) {
+    let varDefArr = str.split(" ");
+    let varName = varDefArr.pop();
+
+    while (varName === "") {
+        varName = varDefArr.pop();
+    }
+
+    // TODO: how to handle when array reaches
+    // bottom and an undefined value is returned.
+
+    return varName;
+}
+
+function extractModuleName(str) {
+    let requireDefArr = str.split("'");
+
+    // Hardcoded, get the second element.
+    return requireDefArr[1];
+}
+
+function getFrequencyOfLocalVariable(content, mtvMap) {
+    let freqMap = new Map();
+
+    Object.keys(mtvMap).forEach((key) => {
+        let acc = 0;
+
+        content.forEach((line) => {
+            acc += line.split(mtvMap[key]).length - 1;
+        });
+
+        freqMap[key] = acc;
+    });
+
+    return freqMap;
+}
 
 function findDependencies(jsFiles, dependenciesMap){
     jsFiles.forEach(function (file) {
