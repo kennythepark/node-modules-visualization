@@ -3,12 +3,17 @@ const fs = require('fs');
 // let variableMap = new Map();
 
 function getDataMatrix(dependencies, jsFiles) {
-    let rawContent = fs.readFileSync('repoToVisualize/public/js/repoHandler.js',"utf-8");
-    let content = rawContent.split("\n");
-    let moduleToVariableMap = getModuleToVariableMap(content);
-    let testMap = getFrequencyOfLocalVariable(content, moduleToVariableMap);
+    let matrix = [];
 
-    console.log(testMap);
+    jsFiles.forEach((file) => {
+        let rawContent = fs.readFileSync(file,"utf-8");
+        let content = rawContent.split("\n");
+        let moduleToVariableMap = getModuleToVariableMap(content);
+        let freqMap = getFrequencyOfLocalVariable(content, moduleToVariableMap);
+        
+        createFileMatrix(matrix, freqMap);
+
+    });
 } 
 
 // Find dependent node modules in file content.
@@ -67,6 +72,10 @@ function getFrequencyOfLocalVariable(content, mtvMap) {
     });
 
     return freqMap;
+}
+
+function createFileMatrix(matrix, freqMap) {
+
 }
 
 function findDependencies(jsFiles, dependenciesMap){
