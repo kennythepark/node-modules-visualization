@@ -1,9 +1,9 @@
 const fs = require('fs');
 
-// let variableMap = new Map();
-
 function getDataMatrix(dependencies, jsFiles) {
     let matrix = [];
+
+    console.log(jsFiles);
 
     jsFiles.forEach((file) => {
         let rawContent = fs.readFileSync(file,"utf-8");
@@ -11,7 +11,7 @@ function getDataMatrix(dependencies, jsFiles) {
         let moduleToVariableMap = getModuleToVariableMap(content);
         let freqMap = getFrequencyOfLocalVariable(content, moduleToVariableMap);
         
-        createFileMatrix(matrix, freqMap);
+        matrix.push(createFileDataArray(freqMap, dependencies, jsFiles.length));
 
     });
 } 
@@ -27,10 +27,12 @@ function getModuleToVariableMap(content) {
         if (line.includes("require(")) {
             let lineSplit = line.split("=");
 
-            let varName = extractVariableName(lineSplit[0]);
-            let requiredMod = extractModuleName(lineSplit[1]);
+            if (lineSplit.length > 1) {
+                let varName = extractVariableName(lineSplit[0]);
+                let requiredMod = extractModuleName(lineSplit[1]);
 
-            moduleToVariableMap[requiredMod] = varName;
+                moduleToVariableMap[requiredMod] = varName;
+            }   
         }
     });
 
@@ -74,8 +76,17 @@ function getFrequencyOfLocalVariable(content, mtvMap) {
     return freqMap;
 }
 
-function createFileMatrix(matrix, freqMap) {
+function createFileDataArray(freqMap, dependencies, numOfFiles) {
+    let dArr = Array(numOfFiles);
+    dArr.fill(0);
 
+    console.log(dArr);
+    
+    dArr.push(1);
+
+    console.log(dArr);
+
+    return [];
 }
 
 function findDependencies(jsFiles, dependenciesMap){
