@@ -19,9 +19,8 @@
     <nav class="navbar navbar-dark bg-dark navbar-fixed-top" role="navigation">
       <div class="container">
         <div class="navbar-header">
-          <a class="navbar-brand" href="/">
-            <img id="logo" src ="assets/node.svg">
-          </a>
+          <img id="logo" src ="assets/node.svg">
+          <a class="navbar-brand" href="#">NODEpendency</a>
         </div>
       </div>
     </nav>
@@ -29,12 +28,24 @@
     <!-- Main jumbotron for a primary marketing message or call to action -->
     <div class="jumbotron">
       <div class="container">
-        <h1>NODEpendency</h1>
-        <p>Please provide the GitHub Node Module project link you want to analyze.</p>
-        <form action="/" method="post">
-          <input name="url" type="text" class="form-control" placeholder="Yup. Just the link :)" required>
-          <input id="submitBtn" type="submit" class="btn btn-primary" value="Analyze dependency!">
-        </form>
+        <div id="frontPage">
+          <div id="frontPageAnimation">
+              <iframe width="700" height="700" src="https://lottiefiles.com/iframe/983-rejection" frameborder="0" allowfullscreen></iframe>
+          </div>
+          <div id="frontPageWord">
+            <h1>Find your</h1>
+            <h1>Node.js module</h1>
+            <h1>dependencies.</h1>
+            <h4>Insert your GitHub Node Module project URL to analyze!</h4>  
+          </div>
+        </div>
+
+        <div id="forms">
+            <form action="/" method="post">
+              <input name="url" type="text" class="form-control" placeholder="Yup. Just the link :)" required>
+              <input id="submitBtn" type="submit" class="btn btn-primary" value="Analyze dependencies!">
+            </form>
+        </div>
       </div>
     </div>
 
@@ -44,10 +55,13 @@
 
     <hr>
 
-    <footer>
-      <p>&copy;2018 Viz 5 CPSC 410</p>
-      <div>Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
-    </footer>
+    <div class="container">
+        <footer>
+            <p>&copy;2018 Team Viz 5. A CPSC 410 Project. All rights reserved.</p>
+            <div id="freepik">Icons made by <a href="https://www.freepik.com/" title="Freepik">Freepik</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
+          </footer>
+    </div>
+    
 
     <% if(dependencyData !== null){ %>
       <script src="js/d3.min.js"></script>
