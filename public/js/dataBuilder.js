@@ -1,18 +1,22 @@
 const fs = require('fs');
 
 function getDataMatrix(dependencies, jsFiles) {
+    let dependenciesSet = new Set(Object.keys(dependencies));
+    let validJsFiles = [];
     let matrix = [];
-
-    console.log(jsFiles);
 
     jsFiles.forEach((file) => {
         let rawContent = fs.readFileSync(file,"utf-8");
         let content = rawContent.split("\n");
         let moduleToVariableMap = getModuleToVariableMap(content);
-        let freqMap = getFrequencyOfLocalVariable(content, moduleToVariableMap);
-        
-        matrix.push(createFileDataArray(freqMap, dependencies, jsFiles.length));
+        let freqMap = getFrequencyOfLocalVariable(content, moduleToVariableMap, dependenciesSet);
 
+        if (Object.keys(freqMap).length > 0) {
+            console.log(file);
+            validJsFiles.push(file);
+            matrix.push(createFileDataArray(freqMap, dependencies));
+        }
+        
     });
 } 
 
@@ -60,29 +64,34 @@ function extractModuleName(str) {
     return requireDefArr[1];
 }
 
-function getFrequencyOfLocalVariable(content, mtvMap) {
+function getFrequencyOfLocalVariable(content, mtvMap, dependenciesSet) {
     let freqMap = new Map();
 
     Object.keys(mtvMap).forEach((key) => {
-        let acc = 0;
+        if (dependenciesSet.has(key)) {
+            let acc = 0;
 
-        content.forEach((line) => {
-            acc += line.split(mtvMap[key]).length - 1;
-        });
+            content.forEach((line) => {
+                acc += line.split(mtvMap[key]).length - 1;
+            });
 
-        freqMap[key] = acc;
+            freqMap[key] = acc;
+        }
     });
 
     return freqMap;
 }
 
-function createFileDataArray(freqMap, dependencies, numOfFiles) {
-    let dArr = Array(numOfFiles);
-    dArr.fill(0);
+function createFileDataArray(freqMap, dependencies) {
+    // let dArr = Array(numOfFiles);
+    // dArr.fill(0);
 
-    console.log(dArr);
-    
-    dArr.push(1);
+    let dArr = [];
+
+    Object.keys(dependencies).forEach((d) => {
+        let freq = freqMap[d] || 0;
+        dArr.push(freq);
+    });
 
     console.log(dArr);
 
